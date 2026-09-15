@@ -3,7 +3,7 @@
 ```
 集群模式zoo.cfg 添加配置
 
-server.myid=ip:2888:3888;
+server.myid=ip:2888:3888
 
 myid: 表示 zoo.cfg 里面 配置  dataDir 目录里面 myid 文件里面的内容
 ip: 表示 myid 服务器的ip
@@ -147,5 +147,5 @@ Leader 选举规则
   3.Epoch 和 ZXID 相等 ,myid 大的胜出
 
 
-  
+
 ```
