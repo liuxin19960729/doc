@@ -12,18 +12,12 @@ ls -s path 节点详细信息
 get -s  path 
 get path 
 
-创建持久节点
-create path value 
-create -s  path value  创建一个带序号的节点(程序会自动在后面加上序号)
-例如
+修改节点的值
+set path value
 
-create -s /sanguo/names zhangfei
-// output
-Created /sanguo/names0000000001
 
-create -s /sanguo/names guanyu
-// output
-Created /sanguo/names0000000002
+查看节点的状态
+stat path
 
 
 czxid 创建节点的事务id
@@ -49,10 +43,24 @@ numChildren 子节点个数
 持久节点:服务端与客户端断开连接节点不删除
 
 
-
-
 短暂节点:服务端与客户端断开连接节点删除
+创建持久节点
+create path value 
+create -s  path value  创建一个带序号的节点(程序会自动在后面加上序号)
+例如
 
+create -s /sanguo/names zhangfei
+// output
+Created /sanguo/names0000000001
+
+create -s /sanguo/names guanyu
+// output
+Created /sanguo/names0000000002
+
+创建临时节点
+crate -e path value
+创建临时带序号的节点
+create -e -s path value
 
 
 
