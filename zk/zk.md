@@ -1,4 +1,5 @@
 # zk
+[office doc](https://zookeeper.apache.org/doc/r3.5.7/zookeeperStarted.html)
 ## 集群配置
 ```
 集群模式zoo.cfg 添加配置
