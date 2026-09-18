@@ -54,5 +54,37 @@ static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier, Executor execu
 
 未指定线程池 使用ForkJoinPool.commonPool() 线程池
 
+// 任务执行完执行该回掉 该回掉会传入两个值 返回值 and 异常信息
+public CompletableFuture<T> whenComplete(BiConsumer<? super T, ? super Throwable> action)
+// 任务出现异常会调用该回掉函数
+public CompletableFuture<T> exceptionally(Function<Throwable, ? extends T> fn)
 
+
+
+// 和  get 一样 不用一定补货或则抛出异常 join 返回的异常是运行时的异常
+public T join()
+
+note:
+Java 异常体系里：
+
+Checked Exception（继承 Exception 但不继承 RuntimeException）：编译器强制要求 try-catch 或 throws，否则编译失败。
+
+Unchecked Exception（继承 RuntimeException）：编译器不检查，写不写 try-catch / throws 都能编译通过。
+
+
+
+```
+### 函数式接口说明
+```java
+Runnable void run()
+   
+// 功能形
+Function<T, R>  R get(T t)
+
+// 消费形函数
+Consumer<T>  void accept(T t)
+    BiConsumer  void accept(T t, U u);
+
+// 供给形
+Supplier<T>   T get();
 ```
