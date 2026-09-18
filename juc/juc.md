@@ -90,15 +90,49 @@ Supplier<T>   T get();
 ```
 ### CompletableFuture 方法说明
 ```java
-public T get()
-      throws InterruptedException,ExecutionException
-public T get(long timeout, TimeUnit unit)
-      throws InterruptedException,ExecutionException,TimeoutException
-public T join()
-Throws:
+1.获得结果并且触发计算
+
+public T get() throws InterruptedException,ExecutionException
+public T get(long timeout, TimeUnit unit) throws InterruptedException,ExecutionException,TimeoutException
+public T join() Throws:
 CancellationException - if the computation was cancelled
 CompletionException - if this future completed exceptionally or a completion computation threw an exception
 public T getNow(T valueIfAbsent)
     该函数不会阻塞 调用该函数 如果计算完成 返回 计算完成值 or 抛出异常 否则 返回valueIfAbsent
-    
+
+
+public boolean complete(T value) 
+ 是否打断get join 方法 返回指定的值
+
+
+2.对计算结果进行处理
+public <U> CompletableFuture<U> thenApply(Function<? super T, ? extends U> fn)
+note:如果存在多个步骤 ,在中间某一个步骤出现异常就直接抛出异常 不进行下一步骤
+public <U> CompletableFuture<U> handle(BiFunction<? super T, Throwable, ? extends U> fn)
+note: 如果存在多个步骤 中间步骤 出现异常 会继续执行下一步骤 会将上一个出现的异常传给下一步
+对计算结果存在依赖,两个线程串行化
+
+
+3.对计算结果进行消费
+public CompletableFuture<Void> thenAccept(Consumer<? super T> action) 
+  对上一步计算的结构进行消费无返回结果
+
+
+
+4.
+5.
+
+
+
+
+note:
+   xxxAsync 方法 可以指定线程池执行该任务
+
+   1.不传入线程池使用ForkJoinPool
+   2.如果第一个任务传入一个自定义线程池
+     xxx 执行第二个任务和第一个任务共用一个线程池
+     xxxAsync   第一个使用的时自定义线程池 第二使用 ForkJoinPool or 显示传入的线程池
+
+  3.如果任务处理的太快,系统优化切换原则,可能直接使用main 线程池处理
+
 ```
