@@ -88,3 +88,17 @@ Consumer<T>  void accept(T t)
 // 供给形
 Supplier<T>   T get();
 ```
+### CompletableFuture 方法说明
+```java
+public T get()
+      throws InterruptedException,ExecutionException
+public T get(long timeout, TimeUnit unit)
+      throws InterruptedException,ExecutionException,TimeoutException
+public T join()
+Throws:
+CancellationException - if the computation was cancelled
+CompletionException - if this future completed exceptionally or a completion computation threw an exception
+public T getNow(T valueIfAbsent)
+    该函数不会阻塞 调用该函数 如果计算完成 返回 计算完成值 or 抛出异常 否则 返回valueIfAbsent
+    
+```
