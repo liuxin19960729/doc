@@ -118,12 +118,13 @@ public CompletableFuture<Void> thenAccept(Consumer<? super T> action)
   对上一步计算的结构进行消费无返回结果
 
 
+4.对计算速度的选用
+public <U> CompletableFuture<U> applyToEither(CompletionStage<? extends T> other,Function<? super T, U> fn)
 
-4.
-5.
+5.计算结果合并
+public <U,V> CompletableFuture<V> thenCombine(CompletionStage<? extends U> other,BiFunction<? super T, ? super U, ? extends V> fn)
 
-
-
+两个任务执行完返回一个新的 CompletableFuture
 
 note:
    xxxAsync 方法 可以指定线程池执行该任务
