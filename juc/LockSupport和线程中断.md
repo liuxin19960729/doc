@@ -34,6 +34,12 @@ java 中存在三种等待唤醒方法
 2.JUC 包中的Condition await  signal
     Lock 
 3.LockSupport park unpark
-
+park 有许可证 阻塞  么有阻塞
+unpark 发送许可证
+  1.不用再持有锁直接调用park 阻塞
+  2.park 和 unpark 没有顺序要求 可以先发证 在park 不会阻塞
+   可以先park 阻塞 在unpark 发证 停止阻塞
+3.unpark 不管调用多少次 只是发送一张通行证 不会累计发证
 
 ```
+
