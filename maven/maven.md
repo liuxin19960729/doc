@@ -126,5 +126,12 @@ scope complie 和 runtime 能顾传递
 ```
 ## 依赖冲突
 ```
+1.maven 自动选择原则
+    1.路径短者优先(依赖层级)
+    2.先声明者优先
+        依赖层级相同,先配置者优先
+
+2.手动排除
+    exclusions/exclusion*
 
 ```
