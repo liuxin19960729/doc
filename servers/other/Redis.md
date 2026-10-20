@@ -52,5 +52,56 @@ value 类型
     字符串
     整数
     浮点数
+
+
+value 浮点数 or 整数 
+    incr  keyamount
+    decr key amount 
+    incrby key amount 
+    decrby key amout
     
+    // >= v.2.6
+    increbyfloat key amount
+
+
+note:
+   incr or decr
+   incrby or decrby
+   INCRBYFLOAT
+    一个不存在的key 的时候 会将该值默认当成0值操作
+
+
+
+value 字符串
+appens key value 
+    追加字符串
+getrange key start end
+    相等于 substr
+
+setrang key offset value
+    设置指定位置的值
+    流入 原始字符串 "sssll"
+
+    setrange key 1 “222”
+    则变成字符串 "s222"
+
+getbit key offset
+    返回 offset bit
+
+    例如 
+    set k "A"
+    A ascii 二进制为 01000001
+
+    note: offset 计算是从左到右
+
+    getbit k 0; //0
+    getbit k 1; 1
+    
+ sebit key offset value
+    
+
+
+bitcount key start end [BIT|BYTE(default)]
+    统计二进制位字符串里面为1的二进制数量
+
 ```
