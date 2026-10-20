@@ -104,4 +104,9 @@ getbit key offset
 bitcount key start end [BIT|BYTE(default)]
     统计二进制位字符串里面为1的二进制数量
 
+
+bitop op dstkey key1,....
+    op: and or xor not 
+    dstkey 存储的结果
+    key1,.... 参与运算的key
 ```
