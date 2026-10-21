@@ -120,6 +120,38 @@ note:
 ```
 ## 数据绑定
 ### 模型绑定和验证
+```go
+类型
+Must bind  ->
+    Bind BindJson BindXML BindQuery BindYAML
+ ->   MustBindWith
+  存在绑定错误 c.AbortWithError(400,err).setType(ErrorTyepBind)
+  Content-Type 设置 为 text/plain;charsetutf-8
+
+
+ShouldBind
+    ShouldBind、ShouldBindJSON、ShouldBindXML、ShouldBindQuery、ShouldBindYAML
+->shouldBindWith
+    如果绑定错误 返回 由来开发者适当的处理请求和错误
+
+
+
+gin 更具 Content-Type 判断绑定器
+
+
+type Login struct {
+  User     string `form:"user" json:"user" xml:"user"  binding:"required"`
+  Password string `form:"password" json:"password" xml:"password" binding:"required"`
+}
+
+User 是 bindindg:required
+ 在绑定的时候值为nil 则将返回错误
+ 
+ 
+ binding:"-" 不是一个必须传入的值
+
 ```
+### 自定义验证器
+```go
 
 ```
