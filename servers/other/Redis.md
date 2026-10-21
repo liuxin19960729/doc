@@ -201,5 +201,55 @@ zincrby
 
 ## 发布和订阅
 ```
+subscribe channel [channel...]
+   订阅通道
+
+unsubscribe channel [channel]
+
+publish channel message 
+   向指定通道发送信息
+   
+
+psubscribe pattern [pattern ...]
+ 订阅与之相匹配的频道
+
+unpsubscribe pattern [pattern ....]
+
+
+
+note:
+ 订阅者在一段时间断线 则者端时间的消息会丢失
+
+
+```
+
+## 任务队列
+### 先进先出队列
+```
+
+push_queue(data){
+    rdb.rpush("queue:email",data)
+}
+
+
+
+pop_queue(){
+    
+    while(!QUIT){
+        data=con.blpop("queue:emil",30)
+
+        if(!data){
+            continue;
+        }
+
+        // 获取到数据发送
+
+    }
+
+}
+
+```
+### 多个可执行任务
+```
 
 ```
