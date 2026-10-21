@@ -193,5 +193,7 @@ hincrbyfloat key-name key incement
 zadd key-name score member [score member ...]
 zrem key-name member [member ...]
  从set 里面删除元素
- 
+
+zcard key-name
+zincrby
 ```
