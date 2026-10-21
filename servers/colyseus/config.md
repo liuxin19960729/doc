@@ -17,6 +17,16 @@ note:
     transport:xxxx
   })
 
+
+
+```
+##### Connection LifeCycle
+```
+1.Accept 
+2.hearbeat (检测无响应的客户端)
+3.解析 sessionId roomId 认证token
+4.通过matchMake 将连接转发的相应的房间
+
 ```
 
 #### Presence
