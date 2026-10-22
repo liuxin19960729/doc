@@ -422,3 +422,61 @@ c.ShouldBindBodyWith 在绑定之前将请求体存储到上下文中(源码中 
 
 
 ```
+## 中间件
+### 默认不使用中间件
+```go
+gin.Default()  默认包含两个中间件
+Logger  
+Recovery 将捕获服务器Panic 并返回客户端 500
+
+
+func Default(opts ...OptionFunc) *Engine {
+	debugPrintWARNINGDefault()
+	engine := New()
+	engine.Use(Logger(), Recovery())
+	return engine.With(opts...)
+}
+
+```
+
+### 使用中间件
+```
+router.use 全局中间件
+
+group.use 分组中间件
+
+
+中间件按照执行顺序执行 c.Next() 将控制权交给下一个中间件
+
+c.Abort()  后续中间件and最终处理函数被跳过不执行
+
+
+```
+
+### 自定义中间间
+```go
+gin 中间件 返回 gin.HandlerFunc
+
+
+c.Abort or  c.AbortWithStatusJSON 阻止任何处理函数执行
+
+
+func xxx() gin.HandleFunc{
+    return func (c *gin.Context){
+        c.Next()
+        // c存储或者获取值
+        // c.Set()
+        // c.MustGet()
+    }
+}
+
+```
+### 中间件中的Goroutine
+```
+
+gin.Context 采用 sync.Pool 复用
+
+
+c.Copy() 创建一个上下文快照 于sync.Pool 分离
+
+```
