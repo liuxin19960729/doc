@@ -66,6 +66,75 @@ note:
 
 ## room Lifecycle Events
 ### On Create
+```js
+
+
+onCreate (options) {
+    /**
+     * This is a good place to initialize your room state.
+     */
+}
+
+defineRoom(Class,options) 服务器通过options 提供选项 
+
+note:
+     客户端 + 服务端选项  onCreate (options)  
+     服务器选项可能覆盖客户端选项
+     
+```
+### OnAuth
+```
+onJoin() 之前调用
+```
+### OnJoin
+```
+onAuth 认证成功 进入房间成功 调用功能
+
+
+
+client sdk .joinOrCreate  or .join
 ```
 
+### On Drop
+```
+当客户端非主动断结连接的情况下可以在onDrop 触发重新连接机制
+
+```
+### onReconnect
+```
+客户端重连成功后调用
+```
+### On Leave
+```
+onDrop
+   客户端断 .leave()
+
+    or 断线连接失败调用onLeave
+
+```
+
+### On Dispose
+```
+房间销毁该回掉触发
+
+客户端全部离开房间 autoDispose被设置true
+```
+
+### On Unhandled Exception
+```
+在任何一个声明周期函数触发异常被捕获都会触发该方法
+
+```
+
+### On Before Patch
+```
+在状态同步之前触发
+```
+### On Before Shutdown
+```
+在优雅关闭的过程中被调用
+
+默认情况下，聊天室会断开所有客户端的连接并立即释放自身。
+
+您可以自定义聊天室在关闭过程中的行为：
 ```
