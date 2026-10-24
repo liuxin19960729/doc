@@ -220,3 +220,50 @@ func AddUint64(addr *uint64, delta uint64) (new uint64)
 
 
 ```
+## http
+###  ListenAndServe
+```golang
+监听指定的 TCP 地址，接收客户端的 HTTP 请求，并交给对应的处理器处理
+
+func ListenAndServe(addr string, handler Handler) error
+
+参数:
+addr
+    ":8080"
+    "127.0.0.1:8080"
+
+
+handler
+
+type Handler interface {
+	ServeHTTP(ResponseWriter, *Request)
+}
+
+类实现 ServeHTTP(ResponseWriter, *Request) 可以作为http 处理器
+
+
+```
+### ListenAndServeTLS
+```golang
+会使用 TLS 加密连接，通常需要服务器证书和对应的私钥。
+
+
+
+```
+
+### Shutdown
+```golang
+
+优雅关闭http服务器
+func (s *http.Server) Shutdown(ctx context.Context) error
+
+
+流程
+1.开始关闭流程
+2.不接收新TCP连接
+3.关闭空闲连接
+4.等待正在处理的请求完成
+  并检测ctx 是否timeout
+5.成功完成或超时
+
+```
