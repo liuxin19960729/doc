@@ -267,3 +267,116 @@ func (s *http.Server) Shutdown(ctx context.Context) error
 5.成功完成或超时
 
 ```
+## time
+**定时器**
+### NewTicker
+```golang
+Go 的 time.NewTicker 是一个用于定时重复触发任务的工具
+会按照执行时间间隔,周期性的向Channel 发送值
+
+运用场景:
+      心跳检测,定时刷新.....
+
+
+例1:
+
+
+func main() {
+	ticker := time.NewTicker(time.Second)
+
+	defer ticker.Stop()
+
+	for t := range ticker.C {
+		fmt.Println("tick", t)
+	}
+}
+
+// 每个1 second 就向 chan 里面发送一次通知(内部的时间机制触发)
+// t := range ticker.C 监听到了 chan 里面有数据就执行打印
+
+
+```
+### NewTimer
+```golang
+time.NewTimer 用于创建一个一次性定时器：经过指定时间后，定时器会向它的 channel 发送一个时间值
+
+
+例1:
+
+func main() {
+	timer := time.NewTimer(time.Second * 2)
+
+	defer timer.Stop()
+
+	fmt.Println("wait")
+
+	<-timer.C
+	fmt.Println("timeout")
+
+}
+
+
+
+note:
+    stop() 返回的是 bool
+    true 表示成功停止 尚未触发定时器
+    false 表示已经被停止
+
+
+
+
+例2:
+	timer := time.NewTimer(time.Second * 2)
+	timer.Reset(time.Second * 10)
+	defer timer.Stop()
+	fmt.Println(time.Now())
+	fmt.Println("wait")
+
+	tm := <-timer.C
+	fmt.Println("timeout", tm)s
+
+
+note:
+1.Reset(dur:time.Duration) bool 重置计时器
+return 
+    true 定时器处于激活状态 尚未触发或停止
+    false Reset 之前处于触发或停止状态
+
+
+2.当timer 触发之后使用Reset() 重置 仍然可以继续使用
+
+
+```
+
+### After
+```golang
+
+time.After 返回的是Channel 不能Stop 和 Reset 
+
+例1:
+	fmt.Println("start", time.Now())
+	<-time.After(time.Second * 10)
+	fmt.Println("end", time.Now())
+
+ 
+ 
+例2:
+func do(compFunc context.CancelFunc) {
+	defer compFunc()
+	fmt.Println("do")
+	time.Sleep(time.Second * 2)
+}
+
+func main() {
+	ctx, compFunc := context.WithCancel(context.Background())
+	go do(compFunc)
+	select {
+	case <-time.After(time.Second * 10):
+		fmt.Println("timeout")
+	case <-ctx.Done():
+		fmt.Println("done")
+	}
+
+}
+
+```
