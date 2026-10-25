@@ -150,6 +150,43 @@ onRemoteNotAlive
 ```
 
 ### 自定义心跳检测消息及处理机制
+[link](https://www.yuque.com/aceld/tsgooa/ogzff36l2hgxnvol)
+
+## Zinx WebSocket （Web长链接）
+```
+zinx.json
+
+{
+      "Mode":"websocket"
+}
+
+```
+
+
+## Zinx WorkerMode（协程池工作模式）
 ```golang
+zinx.json
+{
+     "WorkerMode":"Hash"
+}
+
+Hash 默认
+    workerId=connectionId % workerPoolSize 
+
+
+Bind 
+    每创建一个Connection链接都会与之绑定一个WorkerId, 这样可以保证同一个链接的数据都由同一个Worker处理,直到WorkerPoolSize填满为止。
+
+
+DynamicBind
+    在Bind模式下优化,更具负载动态启动worker
+
+```
+### WorkerMode Bind 适用场景（面向的问题）
+```
+Hash 模式下如果发生大量阻塞式操作(RCP 数据库访问 读写文件 等操作)则会发生CPU 未占满则连接数上不去的操作
+
+Hash 模式下会出现一个worker 会存在多个链接的情况,如果A阻塞此时B什么也不能做这样就会照成一个连接会影响另一个连接
+
 
 ```
