@@ -40,3 +40,14 @@ value,ok:=<-ch
 ok 可以判断ch 是否关闭
 
 ```
+
+## 查询通道 cap 和 当前有多少个元素
+```golang
+ch1 := make(chan int)
+
+fmt.Println("ch1 len:", len(ch1), "cap:", cap(ch1))
+ch2 := make(chan int, 100)
+ch2 <- 1
+ch2 <- 2
+fmt.Println("ch2 len:", len(ch2), "cap:", cap(ch2))
+```
