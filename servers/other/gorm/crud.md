@@ -54,3 +54,12 @@ note: 也可以存入多条数据
 ```golang
 err := db.Omit("Age").Create(&user).Error
 ```
+### 批量插入
+```
+1.gorm 生成一条sql语句插入
+2.如果分成多批次grom 会开启事务来管理他们
+
+
+1.Create(slice)
+2.CreateInBatches(slice,批次大小)
+```
