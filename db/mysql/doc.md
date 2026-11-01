@@ -138,7 +138,7 @@ like 通配符
 
 primary key
 
-不能为空值 不能重复,一个表只能存在一个组件
+不能为空值 不能重复,一个表只能存在一个primary key
 
 
 CREATE TABLE user(
@@ -154,6 +154,7 @@ auto_increment
 UNIQUE
 可以取空值
 
+一个表可以存在多个unique 
 
 4.非空约束
 NOT NULL
@@ -170,5 +171,188 @@ foreign key
 
 desc table ;查看表的描述
 desc table \G 查看表的描述
+
+```
+
+## 表设计
+```
+一对一关系:
+
+父表(主键)-->子表增加一列(关联上父表主键)
+
+
+一对多关系
+
+一对多和一对一一样子列表需要与之关联父表的主键
+
+
+多对多关系
+    增加一个中间表 
+    中间表分别包含多对多关系表的主键
+
+
+
+数据库范式带来了那些好处
+1.减少了数据库的冗余存储
+2.消除异常(插入异常,更新异常,删除异常)
+3.数据的组织更加和谐
+note:
+    (并不是遵循的数据库范式越高越好)范式越高 意味着表越多，多表联合查询的几率越大,查询效率越低
+
+
+```
+
+## SQL
+### 库操作
+```sql
+show databases; 
+use db_name;
+create database db_name;
+drop database db_name;
+```
+
+### 表操作
+```sql
+show tables;
+-- 查看表结构
+desc table_name; 
+create table table_name(
+    .....
+);
+drop table table_name;
+
+
+create table user(
+   id  int(4) unsigned primary key auto_increment,
+   name varchar(50) unique not null,
+   age tinyint not null,
+   sex enum('M','W') not null
+) engine=innodb default charset=utf8;
+
+
+-- 查看创建表的语句
+show create table user;
+show create table user \G;
+
+
+
+```
+
+### CRUD
+```sql
+增加
+insert into tb_name(col1,col2,col3) values(val1,val2,val3);
+
+insert into user (name,age,sex) values("lx",30,"M");
+insert into user (name,age,sex) values("lx1",30,"M");
+insert into user (name,age,sex) values("lx2",30,"M");
+insert into user (name,age,sex) values("lx3",30,"M");
+insert into user (name,age,sex) values("lx4",30,"M");
+
+
+-- 一次性插入多条数据
+insert into user (name,age,sex) values ("lx",30,"M"),("lx1",30,"M"),("lx2",30,"M"),("lx3",30,"M"),("lx4",30,"M");
+
+1.只用一次tcp 连接(三次握手4次挥手)
+
+
+
+
+修改
+update tb_name set col1=val1,col2=val2 where id=1;
+update tb_name set col1=col1+1;
+
+
+
+删除
+delete from tb_name where id=1;
+delete from tb_name where id in (1,2,3);
+delete from tb_name where id between 1 and 10; // >=11 and <=10
+// 将表里面的所有数据全部删了
+delete from tb_name;
+
+
+```
+
+### select
+```sql
+
+-- 单表查询
+
+select 业务需要哪些字段 写哪些字段（避免*） from tb_name;
+
+select  from tb_name where 条件
+         is null
+         is not null
+         in ()
+         not in () 
+         between  and
+         like -- % _
+         > < >= <= 
+         and or
+
+
+select * from user where name like 'l%';
+
+
+
+
+- 将查询出来的内容去重
+select distinct  age from user;
+
+
+union  合并查询
+
+union all 不去重
+union 或 union distinct 去重 
+例如:SELECT country FROM Websites UNION ALL SELECT country FROM apps ORDER BY
+country;
+
+
+-- 分页查询
+
+select xxx from tb_name limit N
+    N  显示前N条数据
+select xxx from tb_name limit offset,N
+    offset 偏移
+select xxx from tb_name limit N offset offset
+
+
+explain:
+    查看sql 的执行计划
+    note:explain 查看不了mysql内部对sql做不了优化
+
+
+
+
+create table t_user(
+    id int(11) primary key auto_increment,
+    email varchar(255) default null,
+    password varchar(255) default null
+) engine=innodb auto_increment=1000001 default charset=utf8;
+
+
+
+where xxx  limit
+xxx没有索引的时候 添加 limit 会提高效率,因为mysql 扫描到limit 满足的条数的时候 就停止扫描了
+
+
+
+聚合函数
+count sum avg max min
+
+
+
+分页业务:
+
+pagenum 每页显示的行数
+
+pageno 当前页码
+select * from user limit (pageno-1)*pagenum,pagenum;
+缺点 :效率不均等 前面查询快 后面查询慢
+
+select *from user where id>上一页数据的最后条 limit pagenum;
+不用从头开始扫描 直接从这届从上一页结束的位置往后找pagenum行数据
+
 
 ```
