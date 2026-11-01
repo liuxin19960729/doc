@@ -355,4 +355,190 @@ select *from user where id>上一页数据的最后条 limit pagenum;
 不用从头开始扫描 直接从这届从上一页结束的位置往后找pagenum行数据
 
 
+
+
+order by 排序
+
+order by 字段 asc
+order by 字段 desc
+order by 字段1,字段2,字段3
+      默认使用 字段1 排序 等出现相同的值 再使用字段2 排序 以此类推
+
+
+usring filesort 由于内存大小限制 无法一次性将数据全部加载到内存中 需要使用外排序,需要多次磁盘IO
+explain 
+Extra:
+ Using filesort 外排序
+
+1.排序字段加索引
+2.select 查询的字段 看是否回表
+
+
+
+group by 分组
+select age,count(age)  from user group by age;
+
+将 age 字段值分组 可以使用聚合函数统计具体的值
+count sum avg max min
+
+
+// 对分组后过滤数据
+select age,count(age)as num  from user group by age having num>=1;
+
+group by xx,xx 将多个字段分组
+
+
+group by 涉及排序 explain 查看 extra 里面使用了filesort和temporary 
+
+
+note: group by 后面使用的字段加索引也是非常有必要的
+
+
+
+
+// 练习
+// 总笔数
+select count(serno),sum(amount) from bank_bill;
+
+
+select brno,date,sum(amount) as total_amount from bank_bill group by brno,date order by  brno , total_amount desc;
+
+
+
+```
+### 多表查询
+```sql
+内连接查询
+    查询是两表交集
+
+外连接查询
+    左连接查询
+        左表全部显示 右表满足条件的显示 不满足条件的显示为null
+    右连接查询
+        右表全部显示 左表满足条件的显示 不满足条件的显示为null
+
+
+
+
+
+student: uid name age sex
+course: cid cname credit
+exam: uid cid time score
+
+
+create table student(
+    uid int unsigned primary key auto_increment,
+    name varchar(50) not null,
+    age tinyint unsigned not null,
+    sex enum('M','W') not null
+);
+
+insert into student (name,age,sex) values
+('zhangsan',18,'M'),
+('gaoyang',30,'W'),
+('chenwei',22,'M'),
+('crl',21,'W'),
+('crl1',19,'W');
+
+
+create table course(
+    cid int unsigned primary key auto_increment,
+    cname varchar(50) not null,
+    credit tinyint unsigned not null
+);
+
+insert into course (cname,credit) values
+('CPP 1',18),
+('CPP 2',30),
+('CPP PROJECT',22),
+('CPP SF',21);
+
+create table exam(
+    uid int unsigned not null,
+    cid int unsigned not null,
+    time date  not null,
+    score float unsigned not null,
+    primary key (uid,cid)
+);
+
+insert into exam (uid,cid,time,score) values
+(1,1,'2021-04-09',99.0),
+(1,2,'2021-04-09',98.0),
+(2,2,'2021-04-09',97.0),
+(1,3,'2021-04-09',96.0),
+(3,1,'2021-04-09',89.0),
+(3,2,'2021-04-09',89.0),
+(3,3,'2021-04-09',99.0),
+(3,4,'2021-04-09',99.0),
+(4,4,'2021-04-09',99.0),
+(5,2,'2021-04-09',99.0),
+(5,3,'2021-04-09',99.0),
+(5,4,'2021-04-09',99.0);
+
+
+select A.uid,A.name,A.age,A.sex from student as A where A.uid=1;
+select C.score from exam as C where C.uid=1 and C.cid=2;
+
+
+内连接查询
+select A.uid,A.name,A.age,A.sex,C.score from student as A inner join exam as C on A.uid=C.uid where C.cid=2 and C.uid=1;
+
+//  on A.uid=C.uid 按记录条数 区分大表和小表
+// 小表永远是整表扫描 大表搜索
+
+// 小表student 拿着uid 到大表 搜索 大表创建了 uid和cid 的联合索引
+
+
+note: 大表建立索引才是最有用的
+
+
+
+
+select b.cid,b.cname,b.credit from course as b
+
+
+
+-- exam 关联这 student 和 course  索引 exam 表放在最前面
+select a.uid,a.name,b.cname,c.score from exam as c
+inner join student as a on a.uid=c.uid
+inner join course as b on b.cid=c.cid
+where c.cid=2 and c.uid=1;
+
+
+
+
+select b.cname,c.cid,count(c.cid) as num from exam as c
+inner join course as b on b.cid=c.cid
+group by c.cid 
+
+
+
+select b.cname,c.cid,count(c.cid) as num from exam as c
+inner join course as b on b.cid=c.cid
+group by c.cid having c.cid=2 
+
+
+select b.cname,c.cid,count(c.cid) as num from exam as c
+inner join course as b on b.cid=c.cid
+group by c.cid 
+order by num desc
+
+
+
+单表内连接
+select * from tb_name limit offset,limit
+select id from tb_name limit offset,limit
+
+一般 id 是索引列 这样查询 性能好于 查询多列字段新能
+
+select a.id..... form tb_name  as a
+inner join (select id from tb_name limit offset,limit) as b on a.id=b.id
+
+
+select id from tb_name limit offset,limit 作为临时表 和 作为内连接小表来扫描 扫描出来的索引 用索引去搜索值 这样就能达到 比较高的效率
+
+
+
+-- 外连接查询
+
 ```
