@@ -539,6 +539,82 @@ select id from tb_name limit offset,limit 作为临时表 和 作为内连接小
 
 
 
+note:联合索引 必须使用到第一列才能用到索引
+
+对于inner join 过滤条件卸载where 后面和写在 on里面效果是一样的
+
 -- 外连接查询
+
+left outer join
+right outer join
+
+
+-- left 左边的表全部显示出来 右表中不存在显示数据显示null
+select a.*,b.* from student as a left outer join exam as b on a.uid=b.uid;
+
+
+select a.*,b.* from student as a rights outer join exam as b on a.uid=b.uid;
+
+
+
+select * from student where  uid not in (select distinct uid from exam);
+(select distinct uid from exam) 会产生一张临时表 ，not in 对索引名命中并不高
+
+
+外连接 查询条件的时候加载  on 里面 where 里面 只判断对应的空就可以了
+写在 on 里面始终保持left 左表全表扫描 ...
+
+
+
+```
+
+## 存储引擎
+```sql
+表结构
+表数据
+表索引
+
+存储引擎影响上面内容的存储方式
+
+
+// 查看mysql 支持的存储引擎
+show engines;
+
+
+
+Innodb(行锁)
+.frm 表结构
+.idb 数据+索引(如果不设置主键，会自动生成一个隐藏字段作为主键)
+MyISAM（表锁）
+   .frm 表结构
+   .MYD 数据
+   .MYI 索引
+```
+## 索引详解
+```sql
+note:多列索引必须使用到第一个列才能用到索引
+
+
+unique 和 primary key 会自动创建索引
+
+
+索引的创建和应用
+
+create table index1(
+    id int,
+    name varchar(20),
+    sex enum('M','W'),
+    INDEX [index_name] (id),// 单列索引
+    INDEX  [index_name] (id,name),// 多列索引
+)
+
+
+create [UNIQUE] INDEX index_name ON tb_name (column_list)
+
+
+
+drop index index_name on tb_name
+
+
 
 ```
