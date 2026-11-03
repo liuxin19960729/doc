@@ -310,3 +310,135 @@ note:
     timeout 设置为null select 一直阻塞到有事件可以使用
 
 ```
+## 并发测试
+```
+ab 工具
+
+ubuntu
+   sudo apt  install apache2-utils
+ 
+window 下载apache2 
+
+```
+## 多路复用
+### epoll
+```cpp
+擅长  大量并发连接中 只有少量活跃的连接
+
+两种模式
+1.level trigger 水平触发
+2.edge trigger 边缘触发
+    note:
+    这一次又数据进来触发 如果没有做完注册到epoll 则只有等待到下一次有数据进来触发
+
+
+
+#include<sys/epoll.h>
+
+ int epoll_create(int size);
+     size :最多监听多少个文件描述符
+ note:
+    在 Linux 2.6.8 之后，size 参数已经被忽略，只要传入一个大于 0 的值即可。
+
+return 
+    > 0 成功 返回epoll fd
+    < 0 失败  并设置errno
+
+
+// 注册事件
+epoll_event ev;
+// 将监听socket注册
+ev.data.fd = server.sock;
+// 注册 IN 事件和 边缘触发
+ev.events = EPOLLIN | EPOLLET;
+
+
+
+常用的事件:
+
+宏	含义
+EPOLLIN	FD 可读
+    可读取数据 EOF h或错误
+EPOLLOUT	FD 可写
+    发送缓冲区有可以空间会产生写状态
+
+
+EPOLLERR	FD 发生错误
+EPOLLHUP	FD 挂断
+    FD对应的连接发生挂断
+    对于 TCP Socket，可能需要读取剩余数据，再进行连接清理
+EPOLLRDHUP	对端关闭连接或关闭写方向
+    客户端发送 
+    shutdown(sockfd, SHUT_WR);
+    表示客户端不发送数据 但是可以接收数据
+    EPOLLRDHUP 可以检测到对方是否关闭了写的方向
+
+
+EPOLLET	使用边缘触发模式
+EPOLLONESHOT	事件触发后禁用该 FD 的事件通知
+EPOLLPRI	存在紧急数据可读
+
+
+
+
+note:
+    EPOLLERR 和 EPOLLHUP epoll 会自动检测 即使没有显示的设置
+
+
+
+
+typedef union epoll_data
+{
+  void *ptr; //可以注册对应的函数处理指针
+  int fd; // 监听的fd
+  uint32_t u32;
+  uint64_t u64;
+} epoll_data_t;
+// u32 u64 可以用来存储一些自定义的数据
+
+
+int epoll_ctl(
+    int epfd,
+    int op,
+    int fd,
+    struct epoll_event *event
+);
+ep_fd 管理 fd 的相关事件
+
+return 
+    0 成功
+    -1 失败 并设置errno
+
+
+op 三种操作
+EPOLL_CTL_ADD 添加监听事件
+    note: 重复监听统一fd errno == EEXIST
+EPOLL_CTL_MOD  修改监听事件
+   note: EPOLL_CTL_MOD 不会把原来的事件与新事件自动合并，而是用新传入的 event 配置替换原有配置。
+EPOLL_CTL_DEL 删除监听事件
+    表示从 epoll 实例中移除这个 FD。
+
+
+
+int epoll_wait(
+    int epfd,
+    struct epoll_event *events,
+    int maxevents,
+    int timeout
+);
+
+
+events 用户空间提供的事件数组
+maxevents 本次最多接收的事件数量
+timeout  最长等待时间，单位毫秒
+    -1:无线等待
+    0:立即返回,不等待
+    
+
+return 
+    > 0 成功 本次获取到的就绪事件数量
+    = 0 超时
+    < 0 失败 并设置errno
+
+
+```
