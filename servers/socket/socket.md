@@ -358,7 +358,7 @@ ev.events = EPOLLIN | EPOLLET;
 
 宏	含义
 EPOLLIN	FD 可读
-    可读取数据 EOF h或错误
+    可读取数据 EOF(连接关闭事件) 或错误
 EPOLLOUT	FD 可写
     发送缓冲区有可以空间会产生写状态
 
@@ -433,7 +433,7 @@ maxevents 本次最多接收的事件数量
 timeout  最长等待时间，单位毫秒
     -1:无线等待
     0:立即返回,不等待
-    
+
 
 return 
     > 0 成功 本次获取到的就绪事件数量
