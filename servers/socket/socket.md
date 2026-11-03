@@ -146,4 +146,40 @@ windwows visual studio 设置对应的路径
    调试工作目录
    连接器/高级导入库 
 
+
+
+
+ 头文件引入设置:
+属性->C/C++->附加包含目录
+
+动态链接库引入
+1.设置目录地址
+  属性 常规 附加库目录
+3.设置链接库名称
+  连接器 附加依赖性  xxx.lib;
+
+```
+
+### Linux 动态链接库制作
+```
+libxsocket.so:XTcp.h XTcp.cpp
+g++ $+ -o $@ -fpic -shared --std=c++11 
+
+$+ 依赖项：XTcp.h XTcp.cpp
+
+$@  libxsocket.so 目标名
+
+-fpic 生成与位置无关的代码
+-shared 生成共享库
+
+note: 
+    linux 动态链接库命名规则 libxxx.so
+    
+
+
+tcpserver:server.cpp
+# -I../xsocket 引入头文件地址
+# -lxsocket 引入动态库 
+	g++ $+ -o $@ -I../xsocket --std=c++11 -lpthread -lxsocket
+
 ```
