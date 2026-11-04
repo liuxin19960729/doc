@@ -77,3 +77,15 @@ int epoll_wait(int n;int epfd, struct epoll_event events[n], int n,int timeout);
 
 
 ```
+
+## 服务器百万并发实现
+```c
+void *calloc(size_t count, size_t eltsize);
+
+
+和 malloc 的区别
+1.calloc 分配的内存 全部初始化为0
+
+
+
+```
