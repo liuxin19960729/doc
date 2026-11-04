@@ -56,6 +56,24 @@ ret==0 表示客户端调用close 关闭
 ### select
 [select](./select.c)
 ### epoll
-```
+[epoll](./epoll.c)
+```cpp
+#include <sys/epoll.h>
+
+int epoll_create(int size);
+   note: size 只需要大于0 就可以
+
+int epoll_ctl(int epfd, int op, int fd,struct epoll_event *_Nullable event);
+int epoll_wait(int n;int epfd, struct epoll_event events[n], int n,int timeout);
+
+
+
+水平触发 (EPOLLLT) 默认
+    只要状态在 就触发  比如 读写缓冲区有数据 就触发
+    一次触发 读取一次数据 读取不完没有关系下一次还会触发
+边缘触发(EPOLLET)
+    只要状态改变 就触发 比如 读写缓冲区数据变化 就触发
+    一次触发循环读    
+
 
 ```
