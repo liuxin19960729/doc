@@ -142,11 +142,106 @@ src 是本机断开随机的
 GET / HTTP/1.1\r\n
 ```
 ## websocket
+![WebSocket协议详解信息图](./WebSocket协议详解信息图.png)
 ```
-GET / HTTP/1.1\r\n
-Upgrade: websocket\r\n
-Connection: Upgrade\r\n
-Sec-WebSocket-Key: <KEY>
+
+// openssl 库安装
+sudo apt install libssl-dev
+
+
+TCP 处理分包粘包方式
+1.分隔符
+2.长度+数据
+
+
+HTTP 使用\r\n\r\n 分割符来处理粘报
+
+// 区分http是否是websocket 连接协议
+Connection: Upgrade
+Upgrade: websocket
+
+
+WebSocket 握手 ->TCP 三次握手 ->client socket http Connection: Upgrade Upgrade: websocket
+
+
+握手流程
+1.客户端发送
+2.服务器响应
+    1.请求 Sec-WebSocket-Key  值获取
+    2.GUID	"258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+    3.Sec-WebSocket-Key值+GUID值连接
+    4.SHA-1(Sec-WebSocket-Key值+GUID值)
+    5.base65_encode(SHA-1(Sec-WebSocket-Key值+GUID值))
+    6.响应 Sec-WebSocket-Accept 值 base65_encode(SHA-1(Sec-WebSocket-Key值+GUID值))
+
+
+3.向客户端响应
+HTTP/1.1 101 Switching Protocols
+ Upgrade: websocket
+ Connection: Upgrade
+ Sec-WebSocket-Accept: xxxx
+
+
+
+
+websocket 
+
+1.握手
+ 判断是否存在  Sec-WebSocket-Key
+  获取Sec-WebSocket-Key对应的值
+
+
+   base64_encode(SHA-1(Sec-WebSocket-Key值+GUID值))  
+
+2.数据传输格式
+
+
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-------+-+-------------+-------------------------------+
+     |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+     |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+     |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+     | |1|2|3|       |K|             |                               |
+     +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+     |     Extended payload length continued, if payload len == 127  |
+     + - - - - - - - - - - - - - - - +-------------------------------+
+     |                               |Masking-key, if MASK set to 1  |
+     +-------------------------------+-------------------------------+
+     | Masking-key (continued)       |          Payload Data         |
+     +-------------------------------- - - - - - - - - - - - - - - - +
+     :                     Payload Data continued ...                :
+     + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+     |                     Payload Data continued ...                |
+     +---------------------------------------------------------------+
+
+
+
+
+
+
+状态机 WS_HANDSHARK WS_TRAMISSON WS_EN WS_COUNT
+
+
+Payload len  < = 127
+
+
+
+
+
+
+
+
+
+
+自定义协议注意
+1.tcp分包粘包
+2.数据
+    json/xml/protobuf....
+
+
+
+
 
 
 ```
