@@ -88,4 +88,52 @@ void *calloc(size_t count, size_t eltsize);
 
 
 
+
+struct event_block
+{
+    struct sock_item *items;
+    struct event_block *next
+};
+
+
+
+struct reactor
+{
+    int epfd;
+    struct sock_item *items;
+};
+
+
+
+// 动态扩容数组
+struct sock_item *items;
+适用条件
+1.有序,有规律
+
+
+fd
+
+五元组 (src ip  src port dst ip dst port proto)
+
+
+src ip  src port(65535) dst ip  dst port(9999) proto(tcp)
+
+src 是本机断开随机的
+要让 无元组不通 可以 
+  1.添加网卡 绑定不通的ip
+  2.绑定多个端口
+
+
+
+
+
+并发: 同时承载客户端的数量
+  1.网络连接
+  2.每个业务QPS
+  3.断开连接的时候
+  4.每一秒数据传输
+
+
+100 W 并发决定的因素
+1.epoll 100 万连接一点问题没有
 ```
