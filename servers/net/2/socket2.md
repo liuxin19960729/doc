@@ -230,6 +230,10 @@ Payload len  < = 127
 
 
 
+xor(^) 特点 xor  某一个数xor 偶数次还是自己
+
+x^1^1=x 
+
 
 
 
@@ -239,9 +243,151 @@ Payload len  < = 127
 2.数据
     json/xml/protobuf....
 
+```
+
+
+### Reactor
+```c
+
+阻塞
+
+   read/recv -> 检测是否有数据
+       没有数据 阻塞 让出执行权限 直到有数据 拷贝 返回
+
+       有数据 拷贝 返回
+
+
+    write -> buf满的 阻塞 让出执行权限 直到buf有空闲 拷贝 返回
+    write -> buf有空闲 拷贝 返回
+
+
+非阻塞(write read recv ....可以检测缓冲去数据)
+    write ()  buf 满的立即返回 -1
+       errno  EAGAIN or EWOULDBLOCK
+    
+    read () 没有数据 立即返回 -1
+       errno  EAGAIN or EWOULDBLOCK
+
+       
+       
+errno EINTR 系统调用被其他中断打断 继续尝试读写
 
 
 
 
+非阻塞
+   connect() 第一调用肯定会返回 -1
+            errno EINPROGRESS           
+            多次调用 connect() -1
+            errno EISCONN  socket 已经建立了连接
+
+
+
+   listen(fd,backlog)
+        backlog 全连接队列长度
+        没有调用Accept 在全连接队列能够堆积多少个链接
+        
+    
+    accept()
+        返回 客户端fd and 客户端 ip port ...信息
+        
+        
+
+        // 可以检测
+        非阻塞情况下
+        -1 errno EAGAIN or EWOULDBLOCK
+            全连接队列为空 没有客户端连接
+
+        
+
+连接断开
+    服务器主动关闭
+    close()
+       关闭读写端 和回收对应的资源
+    shutdown()
+        关闭读or 写端
+
+    服务端被动关闭
+       read/recv == 0
+       服务端 close()
+           更准确的说服务端读端关闭
+       
+       write()==-1 && errno=EPIPE
+            可以检测服务端写端关闭
+
+
+
+检测IO(IO多路复用不去具体操作IO只去检测IO的就绪状态)
+
+
+socket() bind() listen() 
+     listenfd 监听读事件 accept 获取连接对象
+
+
+connect()  非阻塞第一个调用直接返回 -1  errno EINPROGRESS
+           
+           如果想通过IO多路复用 监听写事件
+
+
+epoll EPOLLRDHUP 服务端读端不安比
+epoll EPOLLHUP 服务端读写端都关闭
+
+
+epoll EPOLLIN 
+    clientfd 读事件 (表示缓冲区有数据)
+    listenfd accept 事件
+
+epoll EPOLLOUT (表示缓冲区可写)
+    clientfd 写事件
+
+
+
+
+1.epoll_crate()
+   创建红黑树和双端队列数据结构
+3.epoll_ctr
+   EPOLL_CTL_ADD 添加事件
+      向红黑树添加一个节点
+   EPOLL_CTL_MOD 修改事件
+      向红黑树修改节点内容
+   EPOLL_CTL_DEL 
+      删除一个红黑树节点
+
+
+ 
+ epoll_ctr 创建的节点事件会和网卡驱动程序建立回掉关系
+ 对应的事件触发会调用回掉函数ep_poll_callback()
+ 回掉函数会把节点信息添加到双端队列中
+
+
+epoll_wait 调用会将双端队列拷贝到用户太中
+
+
+
+reactor = io多路复用 + 非阻塞IO
+    io多路复用:io检测
+    非阻塞IO:io操作
+
+
+reactor 为什么搭配非阻塞IO?
+1.    
+    1.在多线程环境中 每个线程一个epoll 的事件循环
+    2.如果将listenfd 交给多个线程绑定到epoll
+    3.多个epoll 都能收到同一个连接建立事件
+    4.如果多个线程都去accept 连接对象
+    5.accept 会返回一个新的连接对象
+    6.其他线程就获取不到accept 会被阻塞
+
+2.边缘触发下面必须使用非阻塞IO
+
+
+
+select bug
+    socket 数据到来 select 报告该socket 可读,当协议栈检测到数据到来错误的时候会将数据丢弃,如果使用的是阻塞fd ,则读取数据的时候会阻塞
+    
+
+```
+## Posix API 与网络协议栈原理
+```
 
 ```
