@@ -137,3 +137,16 @@ src 是本机断开随机的
 100 W 并发决定的因素
 1.epoll 100 万连接一点问题没有
 ```
+## http
+```
+GET / HTTP/1.1\r\n
+```
+## websocket
+```
+GET / HTTP/1.1\r\n
+Upgrade: websocket\r\n
+Connection: Upgrade\r\n
+Sec-WebSocket-Key: <KEY>
+
+
+```
