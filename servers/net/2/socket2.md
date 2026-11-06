@@ -384,10 +384,160 @@ reactor 为什么搭配非阻塞IO?
 
 select bug
     socket 数据到来 select 报告该socket 可读,当协议栈检测到数据到来错误的时候会将数据丢弃,如果使用的是阻塞fd ,则读取数据的时候会阻塞
-    
+
+
+
+redis:(6.0)
+    单reactor
+
+    命令处理单线程(核心业务逻辑 数据结构复杂)
+
+
+memcached
+    多reactor
+
+    多线程
+
+nginx 
+    多reactor
+
+    多进程
+
+ listenfd 
+ 创建共享内存 放入锁 
+ fork()
+ 
+ 每个worker() 创建 epoll 对象
+
+  用户层做了负载均衡的accept 获取 clientfd 的获取
+     eplll_wait() 返回都去请共享内存的锁 谁抢到了谁连接
+
+     
+
+
 
 ```
 ## Posix API 与网络协议栈原理
-```
+```c
+
+关于网络的的API
+
+设置读取网络的属性
+setsockopt（
+getsockopt()
+
+
+服务器
+1.socket()
+2.bind()
+3.listen()
+4.accept
+5.recv()/read()
+6.send()/write()
+7.close()
+
+
+
+
+客户端
+1.socket()
+2.bind()?
+3.connect()
+4.send()/write()
+5.recv()/read()
+6.close()
+
+
+shutdown()
+epoll
+...................
+
+
+tcp
+1.建立连接
+    三次握手发生在那个函数里面?
+    1.客户端
+        connect
+    2.服务端
+        在 listen() 到 accept() 中间阶段被动实现的
+
+        
+
+listen() -> 服务器listen 状态
+
+半连接队列
+
+
+全连接队里(accept队列)
+
+    1.accept() 到全连接队列取一个节点
+    2.为节点分配一个sock id
+
+
+accept()
+    阻塞:阻塞到全连接队列有节点
+    非阻塞:
+        1.全连接队列为空 返回-1 errno EAGAIN or EWOULDBLOCK
+        2.全连接队列不为空 返回一个节点
+    
+
+
+#include <sys/socket.h>
+int listen(int sockfd, int backlog);
+backlog
+    当前版本 描述 是全连接大小
+
+
+2.数据传输
+send() 返回 数据> 0 为什么服务器没有接收到
+
+    send() 只将数据写入缓冲区 不保证数据发送到对端
+    在业务层要判断是否发送成功需要返回ack 机制
+
+五元组 (src ip dest ip src port dest port protocol)
+
+
+解决粘包的两种方式
+1.len+data
+    1.read() len
+    
+    2.根据len read () data
+2.分隔符
+    1.read() 固定长度 
+    2.检测固定长度分割符
+  
+  
+
+传输过程中网线断了
+    应用程序无法检测到网线断了
+    
+    客户端
+    可以应用层设计 心跳
+
+
+    服务端也可以使用心跳 包 探测机制检测和客户端的连接状态
+
+
+3.关闭连接
+  不分客户端可服务器 只分主动和被动
+  
+  A close() send FIN --------->B
+    B recv() == 0
+    B 知道A关闭的是发送端
+
+  B send ACK --------->A
+  B close() send FIN --------->A
+    A recv() == 0
+    A 知道B关闭的是接收端
+  A send ACK --------->B
+
+
+
+time_wait 状态 存在意义
+如果不存在 time_wait 那么 接收到fin fin_wait2 直接发送ack 直接退出
+如果ack 发送失败就没有人管了 
+
+
+
 
 ```
