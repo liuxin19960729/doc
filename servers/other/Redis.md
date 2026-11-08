@@ -1,4 +1,17 @@
 # Redis
+
+## redis 命令
+```
+
+client info 
+查看客户端信息 
+
+select index 
+   选择哪个数据库
+   note:redis 数据库 0-15
+
+```
+
 ## 字符串
 ```
 value 类型
@@ -251,5 +264,37 @@ pop_queue(){
 ```
 ### 多个可执行任务
 ```
+
+```
+
+## redis 设置过期时间
+```
+// 设置过期时间秒数
+EXPIRE key seconds
+
+
+// 设置过期时间毫秒数
+PEXPIRE key seconds;
+
+
+指定秒级时间戳过期
+EXPIREAT key timestamp	
+指定毫秒级时间戳过期
+PEXPIREAT key timestamp	
+
+
+// 直接设置过期时间
+set key value ex seconds
+set key value px miseconds
+
+
+
+
+// 获取过期时间秒
+TTL key;
+// 剩余过期时间毫秒
+PTTL key;
+// 取消过期时间
+PERSIST key;
 
 ```
