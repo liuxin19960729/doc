@@ -90,3 +90,21 @@ int execve(const char *pathname,
 
 
 ```
+
+## dup
+```c
+int dup2(int oldfd, int newfd);
+
+oldfd:需要复制的源fd
+newfd:复制的目标fd
+
+行为
+1.如果newfd 已经打开,内核先关闭它
+2.将oldfd 复制到newfd
+3.返回newfd
+
+
+
+
+
+```

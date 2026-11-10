@@ -207,4 +207,44 @@ if(pid==0){
 
 
 
+if(fork()==0){
+    execve();// 
+    note:
+      一般情况下fork() 之前打开的文件在调用execve() 即使栈 堆 代码 和 数据 端 等都替换成了新的 那么 前面已经打开的文件描述符还是报错打开     
+}
+
+fcntl 设置  FD_CLOEXEC  标准 会在调用execve() 时关闭该文件描述符
+
+
+```
+
+## 并发服务器
+[m_proc_server.c](./m_proc_server.c)
+```c
+
+每个文件描述符都存在访问计数,文件计数在文件表项中维护
+
+
+
+
+#include <unistd.h>
+int close(int fd);
+将套接字做上已关闭的标记并且立即返回的进程
+
+```
+
+### 描述字节访问计数
+```c
+close(fd) 将访问计数 -1
+
+访问计数 > 0 不会做任何操作
+
+<=0 关闭TCP 连接
+
+
+
+父进程不对accept() 返回到clientfd close
+1.父进程消耗掉可用的描述符
+2.即使子进程close(clienfd) 也不会终止任何连接
+
 ```
