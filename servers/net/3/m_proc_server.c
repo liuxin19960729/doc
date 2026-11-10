@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+#include <wait.h>
 
 #define BUF_SIZE 1024
 
@@ -33,8 +35,33 @@ void doit(int clienfd, unsigned short cport, char *cip)
     }
 }
 
+// 信号处理函数
+// wait 并不能完全处理完僵尸进程如果同时子进程退出就会有一些子进程处理不了
+void sig_handler(int signum)
+{
+    int status = 0;
+    pid_t pid;
+
+    while ((pid= waitpid(-1,&status,WNOHANG))>0)
+    {
+        printf("pid %d exit status:%d\n", pid, status);
+    }
+}
+
 int main(int argc, char *argv[])
 {
+
+    struct sigaction sig = {0};
+
+    sig.sa_handler = &sig_handler;
+    sig.sa_flags = SA_RESTART;
+
+    // 清空屏蔽信号集合
+    sigemptyset(&sig.sa_mask);
+    sigaddset(&sig.sa_mask, SIGTERM);
+    sigaddset(&sig.sa_mask, SIGQUIT);
+
+    sigaction(SIGCHLD, &sig, NULL);
 
     int listenfd = socket(AF_INET, SOCK_STREAM, 0);
     if (listenfd < 0)
@@ -67,7 +94,7 @@ int main(int argc, char *argv[])
         return -2;
     }
 
-    printf("listen port:%d\n", port);
+    printf("listen port:%d listendfd:%d\n", port, listenfd);
 
     for (;;)
     {
@@ -76,31 +103,39 @@ int main(int argc, char *argv[])
         int clientfd = accept(listenfd, (struct sockaddr *)&caddr, &len);
         if (clientfd < 0)
         {
+
+            perror("accept error\n");
             continue;
         }
 
         unsigned cport = ntohs(caddr.sin_port);
         char *cip = inet_ntoa(caddr.sin_addr);
 
-        printf("client %s:%d connect server\n", cip, cport);
-
         // 多进程服务器
-        if (fork() == 0)
+        pid_t cpid = fork();
+        printf("cpid:%d\n", cpid);
+        if (cpid == 0)
         {
-            char *ccip = (char *)calloc(1, strlen(ccip) + 1);
+            // 忽略
+            signal(SIGCHLD,SIG_DFL);
+            char *ccip = (char *)calloc(1, strlen(cip) + 1);
             strcpy(ccip, cip);
             close(listenfd);
+            printf("client %s:%d connect server clientfd:%d\n", ccip, cport, clientfd);
             doit(clientfd, cport, ccip);
             close(clientfd);
             free(ccip);
-            printf("pid:%d quit\n",getpid());
+            printf("pid:%d quit\n", getpid());
             exit(0);
         }
         else
         {
+            if (cpid < 0)
+                perror("fork error\n");
             close(clientfd);
         }
     }
 
     close(listenfd);
+    printf("finished\n");
 }

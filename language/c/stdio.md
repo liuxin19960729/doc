@@ -33,3 +33,38 @@ return
 
 
 ```
+## fgets
+```c
+#include <stdio.h>
+
+char *fgets(char *str, int n, FILE *stream);
+
+str 缓冲区
+n 最多读取n-1个字符(最有一个字符特意\0)
+stream 文件流
+
+
+return 
+   str 成功
+   NULL 失败
+   EOF 没有读取到任何字符返回NULL
+
+
+```
+
+## fputs
+```c
+int fputs(const char *str, FILE *stream);
+
+str 要写入的字符串
+
+
+return 
+    成功 > 0
+    失败 返回EOF
+
+
+note:
+  fputs 不会在字符串末尾添加\0 或\n
+
+```
