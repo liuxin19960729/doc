@@ -116,7 +116,95 @@ note:
 #include <sys/socket.h>
 int listen(int sockfd, int backlog);
 
-listen 将sockfd 未连接的套接口转换为被动套接口
+listen 将sockfd 未连接的套接口转换为被动套接口,sockfd CLOSED 状态变化为LISTEN
+
+
+SYN-------------> 进入未完成连接队列
+<---------------- SYN +ACK
+ACK-----------------> 已完成连接队里
+
+
+未完成连接队列里面的条目
+1.超时未响应ACK 改条目从未完成队列删除
+2.ACK 响应 该条目从未完成队里移至已完成队列
+
+
+backlog // 并没有官方对该参数正式的定义
+    man listen 
+    指的是待处理连接()
+
+
+accept() 如果是阻塞
+   已完成队列如果是空的阻塞直到有连接进入
+
+
+
+如果队里满的 客户端发送SYN
+    POSIX 允许
+    1.响应RST
+        这种情况客户端不能判断是没有此应用RST 还是服务端的队列满了
+    2.不做任何响应 等待客户端再次尝试发送SYN
+```
+## accept 函数
+```c
+#include <sys/socket.h>
+int accept(int sockfd, struct sockaddr *_Nullable restrict addr,socklen_t *_Nullable restrict addrlen);
+
+从已完成队列中取出一个连接
+
+sockaddr
+addrlen
+    返回客户端的地址和端口
+
+note:如果我们对对端的地址和端口不感兴趣,可以设置为NULL
+
+
+return 
+    > 0 新连接clienfd
+
+
+
+```
+
+## fork 和 exec
+```c
+#include <unistd.h>
+pid_t getpid(void);
+pid_t getppid(void);
+pid_t fork(void);
+该函数式派生新进程的唯一方法
+
+
+
+return
+    0 子进程返回
+    >0 父进程返回
+       返回的值是子进程的id
+       如果父进程想跟踪子进程 必须记住返回的id
+    -1 失败
+
+
+子进程只有一个父进程
+    getppid() 获取父进程id
+
+
+
+
+fork() 之后 
+   子进程共享父进程fork() 之前打开的所有文件描述符
+
+
+
+clientfd=accept()
+pid=fork()// 子进程共享fork() 之前打开的所有文件描述符
+
+if(pid==0){
+    // clientfd 读写
+}else {
+    close(clienfd)
+}
+
+
 
 
 ```
