@@ -81,3 +81,70 @@ pthread_create 内核创建tast_struct 并将该结构加入到就绪队列
 
 
 ```
+
+## pthread_join
+```c
+阻塞等待退出并获取退出结果
+
+
+#include <pthread.h>
+
+int pthread_join(
+    pthread_t thread,
+    void **retval
+);
+
+
+thread:等待线程Id
+retval 接收线程的返回值
+
+return 
+     0 成功
+     非0 失败 直接返回错误码
+          trerror(ret) 获取错误原因
+
+
+
+note:
+    线程执行完 joinable 线程任然保留部分线程资源和退出结果等待其他线程执行
+
+    默认线程是joinable
+
+```
+
+## pthread_detach
+```c
+将线程设置为分离状态,线程退出系统回收它的线程资源,其他线程不允许对它使用pthread_join()
+
+
+
+#include <pthread.h>
+
+int pthread_detach(pthread_t thread);
+
+```
+
+## 原子操作
+```c
+i++;
+
+
+// 汇编代码
+mov [i],%eax; //加栈内存数据到寄存器
+add $1,%eax;// 加1
+mov %eax,[i];// 写到栈内存
+
+
+
+怎么解决上面i++ 多线程问题
+1.互斥锁 mutex
+2.自旋锁 spin_lock 
+3.原子操作
+  stdatomic.h c11 标准库
+  // gcc 
+  __atomic_fetch_add(pcount, 1, __ATOMIC_RELAXED); 
+
+
+
+```
+
