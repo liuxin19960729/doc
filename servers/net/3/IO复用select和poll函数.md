@@ -115,6 +115,18 @@ nfds:
     
 
 2.写准备好
+  2.1
+      发送缓冲区可用空间自己>=发送缓冲区低潮限度当前值
+
+       SO_SNDLOWAT (一般默认值为2048 byte)
+
+   2.2
+       对写的套接字调用 shutdown(SHUT_WR) 关闭写入数据参数SIGPIPE
+   2.3
+       
+note:
+    socket 处错误的时候会被socket标记为既能读又能写
+
 
 
 ```
