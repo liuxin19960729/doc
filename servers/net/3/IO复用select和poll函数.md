@@ -68,6 +68,53 @@ struct timeval 设置超时的时间
 2.timeval 设置 等待固定时间返回 或遇到 事件立即返回
 3.tv_sec 和 tv_usec 设置为 0 不等待立即返回
 
+前面两种情况 会阻塞  如果进程捕获信号 会立即返回 errno = EINTR
+
+readfds:
+
+writefds:
+exceptfds:
+    目前系统只支持两种异常条件
+    1.TCP紧急数据
+    2.已置为分组方式的伪终端（pseudo-terminal）主端读到
+
+
+ void FD_CLR(int fd, fd_set *set);
+ int  FD_ISSET(int fd, const fd_set *set);
+ void FD_SET(int fd, fd_set *set);
+ void FD_ZERO(fd_set *set);
+
+
+
+FD-SETSIZE 定义了 fd_set 的最大值
+
+
+
+nfds:
+    设置为当前最大描述符的值+1
+
+
+```
+### 描述字在什么条件下准备好
+```
+1.读准备好
+    1.1(表示读缓冲区里面有可读的数据)
+    可读的数据字字节数>= 套接字缓冲区低潮限度的当前值
+
+    SO_RCVLOWAT 可以设置低潮限度 note:TCP 和 UDP SO_RCVLOWAT 默认值为1
+
+    1.2.TCP 收到 FIN 
+        read()/recv() 返回0
+    1.3 连接队里数大于0
+       accept() 返回一个连接
+    1.4 socket 读错误待处理
+       read/recv()  -1  errno 告诉具体错误
+        例如  ECONNRESET....等错误
+
+        也可以通过 getsockopt(SO_ERROR) 多去并清理错误
+    
+
+2.写准备好
 
 
 ```
