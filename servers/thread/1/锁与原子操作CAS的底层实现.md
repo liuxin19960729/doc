@@ -148,3 +148,34 @@ mov %eax,[i];// 写到栈内存
 
 ```
 
+## CPU 粘合
+[CPU_Affinity](./CPU_Affinity.md)
+```c
+进程或线程只在设置的粘合的CPU上运行
+```
+
+## 大文件如果快速读到内存里面
+```c
+1.mmap 映射文件到内存
+2.多线程操作映射出来的内存
+
+
+
+共享内存 实现的方式
+1.mmap
+
+void *mmap(void addr[length], size_t length, int prot, int flags,int fd, off_t offset);
+
+
+fd:映射的那个文件
+offset:映射文件的偏移量
+length 分配空间大小
+
+
+
+return 
+      是映射的地址
+
+2.share memory 
+
+```
