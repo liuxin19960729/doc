@@ -146,7 +146,243 @@ next n 执行当前语句 如果该条语句为函数语句 不会进入到函�
 step s 执行当前语句 如果该条语句为函数语句 会进入到函数中
 continue c 继续执行程序 执行到断点处停止
 print p 
+      p xx = x 也可以设置变量的值
+set  var   设置变量的值
+
+
+tui disable 关闭 tui 
+info b 查看所有断点
+delete 删除所有断点
+delete n 删除编号为n的断点
+bt 查看函数调用栈
 
 
 
+```
+## gdb 调试core 文件
+```
+ulimit -a 查看限制内容
+
+ulimite -c unlimited   // 打开core文件限制
+
+修改 ulimit 
+    ulimit 选项  选项值
+
+
+gdb 程序文件名 core文件名
+
+```
+## gdb调试正在运行的程序
+```
+ps -ef | grep 程序名
+
+获取程序的进程编号
+
+gdb 程序名 -p 进程编号
+
+```
+## linux 的时间操作
+```c
+c++11 提供类操作时间的chrono库
+
+time.h 
+    定义 time_t ,long 类型的别名 
+
+// 当前时间获取(1970-1-1到现在的秒数)
+time_t now1=time(0);
+time_t now2;
+time(&now2);
+
+
+// 时间处理
+    // 系统当前时间
+    time_t now1 = time(0);
+
+    tm tmnow;
+    // localtime 非线程安全 localtime_r 线程安全函数
+    localtime_r(&now1, &tmnow);
+
+    std::string year = std::to_string(tmnow.tm_year + 1900);
+    std::string month = std::to_string(tmnow.tm_mon + 1);
+    std::string day = std::to_string(tmnow.tm_mday);
+
+    std::string h = std::to_string(tmnow.tm_hour);
+    std::string m = std::to_string(tmnow.tm_min);
+    std::string s = std::to_string(tmnow.tm_sec);
+
+    std::cout << year << "-" << month << "-" << day
+              << " " << h << "::" << m << "::" << s << std::endl;
+
+
+
+// 将 tm 转换为 time_t
+ time_t mktime(struct tm *tm);
+
+
+
+
+
+#include<unistd.h>
+// 将程序挂起一段时间
+sleep(s); // 单位秒
+usleep(um);//单位微秒 1s=1000ms=1000000us
+
+
+```
+
+## 文件操作函数
+### 目录操作函数
+```c
+
+获取当前的工作目录
+#include <unistd.h>
+
+char * getcwd(char *buf, size_t size)
+char * get_current_dir_name();
+    该内存需要调用者释放
+
+note:
+    linux 中目录的最大长度为255
+
+
+切换工作目录
+#include <unistd.h>
+int chdir(const char *path)
+return 
+     0 成功
+     其他 失败(目录不存在或权限不足)
+
+
+
+// 创建目录
+#include<sys/stat.h>
+mkdir(path,mode) 
+    note:
+           1. mode 0755 不要省略前面的0
+           2. 上级目录不存在不能创建
+
+//删除目录
+#include <unistd.h>
+
+int rmdir(const char *path)
+
+return
+    0 成功
+    其他 失败(目录不存在或权限不足)
+
+
+
+```
+### 获取文件中目录的列表
+```c
+
+#include <dirent.h>
+
+DIR * opendir(const char *path);
+    return 
+        NULL 失败 errno 错误原因
+
+reddir(Dir *dir)
+
+return  
+    ! NULL 成功
+    NULL 失败 errno 错误原因
+
+
+// 关闭目录指针
+closedir(Dir *dir)
+
+
+struct dirent
+{
+    
+    unsigned char d_type;// 8 常规文件  4 目录
+    char d_name[];  // 文件名 or 目录名
+}
+
+```
+
+## Linux 的系统错误
+```cpp
+
+#include<string>
+strerror() 和 perror() 可以查看出错的详细信息
+
+gcc 8.3.1有 133个错误代码
+
+
+errno 只有在发生错误的才会被设置,不会被清除,不能根据errno 来判断是否有错误
+
+
+```
+
+## 目录和文档的更多操作
+```cpp
+
+access()
+   判断目录和文件的存储权限
+   
+   // 判断 目录 获取文件是否存在 
+   access(path,F_OK)!==0
+
+
+
+stat()
+    获取文件的状态信息
+    实际开发中 关注 st_mode st_size st_mtine(文件最后一次被修改的时间) 等成员
+
+
+
+utime()
+
+
+rename() 从命名文件 或目录
+
+
+remove() 删除目录或文件
+
+
+```
+## Linux 信号
+```cpp
+kill 
+killall 
+   向进程发送信号 
+
+   killall -信号种类 
+
+
+
+信号的处理
+1.对信号的处理采用系统默认操作,大部分信号默认操作是终止进程
+2.设置中断处理函数 接收到信号 由函数处理
+    signal(signum,handle)
+    ......
+3.忽略信号 接收到信号 不做任何处理
+    signal(signum,SIG_IGN)
+
+
+
+// 注册了信号处理函数
+void sig_handle(int signum)
+{
+    std::cout << "signum:" << signum << std::endl;
+}
+
+int main()
+{
+
+    signal(1, sig_handle);
+    signal(5, sig_handle);
+
+    while (1)
+    {
+        if (sleep(5) != 0)
+        {
+            perror("sleep");
+            continue;
+        }
+        std::cout<<"sleep timeout"<<std::endl;
+    }
+}
 ```
