@@ -96,3 +96,57 @@ makefile 变量
 
 
 ```
+
+## main 函数参数
+```cpp
+int main(int argc, char *aragv[], char *envp[])
+{
+    std::cout << "argc:" << argc << std::endl;
+
+    std::cout << "=========================" << std::endl;
+    // argv[0] 程序名
+    for (size_t i = 0; i < argc; i++)
+    {
+        std::cout << "i:" << i << " v:" << aragv[i] << std::endl;
+    }
+
+    // std::cout << "=========================" << std::endl;
+
+    // for (size_t i = 0; envp[i] != nullptr; i++)
+    // {
+    //     std::cout << "i:" << i << " v:" << envp[i] << std::endl;
+    // }
+
+    return 0;
+}
+
+// 获取和设置环境变量
+getenv
+setenv
+    note:此函数设置的环境变量只对本进程有效
+
+
+ int setenv(const char *name, const char *value, int overwrite);
+
+overwrite
+    0 不覆盖已经存在的环境变量
+    非 0 覆盖已经存在的环境变量
+```
+## gdb
+```
+调试程序  -g  并且不能使用 -o 的优化选项
+
+gdb 的 常用命令
+
+set args  程序 参数1 参数2 ....
+
+break b 设置断点
+run r 开始运行程序
+next n 执行当前语句 如果该条语句为函数语句 不会进入到函数中
+step s 执行当前语句 如果该条语句为函数语句 会进入到函数中
+continue c 继续执行程序 执行到断点处停止
+print p 
+
+
+
+```
