@@ -385,4 +385,197 @@ int main()
         std::cout<<"sleep timeout"<<std::endl;
     }
 }
+
+重要信号
+
+SIGINT 2  CTRL+C
+SIGKILL 9 KILL KILLALL  -9  强制杀死程序
+      信号默认终止程序
+      信号不能被捕获
+      信号不能被忽略
+
+SIGSEGV 11 无效的内存引用
+    不能被捕获和忽略
+
+
+SIGALRM 14  由闹钟alarm() 发出的信号
+        alarm(5) 5秒后向自己发送信号
+    
+
+SIGTERM 15  由kill 或 killall 发出的信号
+     
+SIGCHLD 17  子进程退出时发出的信号
+
+
+
+信号作用:
+    1.程序可以监听信号 来做一些处理 然后退出
+    2.向程序发送0信号可以检测程序是否存活
+   
+```
+## 进程终止
+```cpp
+
+终止进程
+#include <stdlib.h>
+exit(0);
+
+_exit()  _Exit()
+
+
+
+
+异常终止三种方式
+1.程序调用abort()
+2.接收到信号
+3.最后一个线程对取消请求做出回应
+
+
+shell echo $? 查看进程终止的状态
+
+
+
+exit 
+   析构函数不会调用 只会调用全局的析构函数
+
+
+exit()
+    1.将缓冲区的数据写入磁盘,等做一些善后的工作
+
+_exit _Exit 直接退出不会做任何善后工作
+    note: 连全局的析构函数都不会调用
+
+
+
+
+atexit() 注册一个函数 在进程退出时调用
+   正常返回 和exit() 才会调用该函数
+   note:
+    _exit() _Exit() 不会调用
+    注册的函数 按照注册的顺序逆序调用
+
+```
+
+## 调用可执行程序
+```cpp
+#include <stdlib.h>
+int system(const char *command);
+
+return 
+    !0 执行程序不存在
+    0 执行成功 程序返回 0
+    ！0 执行成功 程序返回非0
+
+execve 函数族
+```
+
+## 进程创建
+```
+共享文件
+1.父进程和子进程共享同一个文件偏移量
+```
+## 僵尸进程
+```cpp
+父进程先于子进程退出,子进程会被1号进程托管
+
+
+将程序运行到后台
+1../程序  &
+2.fork() 父进程 直接退出
+
+
+
+如何避免僵尸进程
+1.父进程忽略SIGCHILD 信号
+    signal(SIGCHILD,SIG_IGN)
+2.wait/waitpid 等待子进程结束
+  WIFEXITED(status) 判断是否是正常退出
+    WEXITSTATUS(status) 获取退出状态
+  
+  WTERMSIG(status) 异常退出获取异常退出的信号
+
+
+3.捕获SIGCHILD 并且在捕获函数中调用wait/waitpid
+
+
+
+```
+
+## 进程发送信号
+```cpp
+kill(pid,sig)
+
+1.pid>0 发送进程号为pid的进程
+2.pid=0 发送当前进程组的所有进程,note:当前发送进程自己能接收到自己的信号
+3.pid=-1 广播给系统所有进程,例如系统关机时会向所有登录窗口广播关机信息
+
+sig：  
+    0 不会发送任何信号 但是可以通过 0 来检测某个进程是否在运行
+
+
+return 
+    0 成功
+    -1 失败 并设置 errno
+
+
+
+多进程信号处理
+
+1.子进程接收到信号自己退出
+   signal(SIGTERM,SIG_IGN);
+   signal(SIGINT,SIG_IGN);
+   // 释放资源
+    exit()
+2.父进程收到信号 给子所有子进程发送退出信号 ,自己在退出
+    signal(SIGTERM,SIG_IGN);
+    signal(SIGINT,SIG_IGN);
+    kill(0,SIGTERM);
+    // 释放资源
+    exit(0)
+```
+
+## 共享内存
+```cpp
+共享内存没有提供锁机制,如果要对共享内存的读写加锁可以使用信号量
+
+#include <sys/shm.h>
+int shmget(key_t key, size_t size, int shmflg);
+    用于创建/获取共享内存
+
+
+
+key:
+    用16进制增加刻度性
+
+
+size:byte 为单位
+
+shmflg:
+    0666 和文件权限一样 rw权限
+    IPC_CREAT 没有就创建
+
+
+return
+    >0 成功 返回共享内存id
+    -1 失败 并设置 errno
+       系统内存不足或没有权限
+
+
+
+ipcs -m 可以查看系统的共享内存
+
+
+
+       #include <sys/shm.h>
+
+
+
+void *shmat(int shmid, const void *_Nullable shmaddr, int shmflg);
+共享内存连接到当前进程的地址空间
+
+
+int shmdt(const void *shmaddr);
+  把共享内存从当前进程中分离
+
+
 ```
